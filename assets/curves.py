@@ -1,23 +1,33 @@
-""" Space Filling Curves
+""" Space-Filling Curves
 
-Dragon curve
-Gosper curve
-Hilbert curve
-Koch curve
-Moore curve
-Murray polygon
-Sierpiński curve
-Space-filling tree
-Spatial index
-Hilbert R-tree
-Bx-tree
-Peano
-Cantor?
+Using the Lindemayer System, produce turtle graphs of some space-filling curves
+
+References:
+https://en.wikipedia.org/wiki/L-system
+https://en.wikipedia.org/wiki/Space-filling_curve
+https://en.wikipedia.org/wiki/Gosper_curve
+https://www.researchgate.net/publication/236966236_New_Gosper_Space_Filling_Curves
+
+Some of the Curves:
+    Dragon curve
+    Gosper curve
+    Hilbert curve
+    Koch curve
+    Moore curve
+    Murray polygon
+    Sierpiński curve
+    Space-filling tree
+    Spatial index
+    Hilbert R-tree
+    Bx-tree
+    Peano
+    Cantor?
 """
 
 from math import sin, cos, radians
 import turtle
 
+# Dict of implemented curves --------------------------------------------------------------------------
 curves = {
     "hilbert"      :   {"axiom": "+BF-AFA-FB+", "turn": 90, "draw": "F"},
     "gosper-7"     :   {"axiom": "A-B--B+A++AA+B-", "turn": 60, "draw": "AB"},
@@ -39,33 +49,31 @@ curves = {
     "gosper-37d-1" :   {"axiom": "B-A--A+B++B-A+B++B-A--A+B++B-A+B++B-A--A+B-A--A+B++B-A--AA-B+A-B++B+A--A-B+A--A-B++B+A+", "turn": 60, "draw": "AB"},
     "gosper-37d-2" :   {"axiom": "B-A--A+B++B-A+B++B-A+B-A+B-A--A+B++B-A--AA-B+A--A-B++B+A-B++B+A-B+A--A-B+A--A-B++B+A+", "turn": 60, "draw": "AB"},
 }
+# ------------------------------------------------------------------------------------------------------
 
-curve = curves["gosper-31c-1"]
-order = 2
-size  = 10
+def draw_curve(curve, order=2, size=10, angle=0):
+    a = curve["axiom"]
+    inverse = str.maketrans(dict(zip("AB+-", "BA-+")))
+    b = str.translate(''.join(reversed(a)), inverse)
+    steps = a
+    sub = str.maketrans({"A": a, "B": b})
+    for _ in range(1, order):
+        steps = str.translate(steps, sub)
+    angle = 0
+    turtle.speed(0)
+    turtle.left(angle) # ccw
+    draw = curve["draw"]
+    turn_degrees = curve["turn"]
+    for s in steps:
+        if s in draw:
+            turtle.forward(size)
+        elif s == "+": # ccw
+            turtle.left(turn_degrees)
+            angle -= turn_degrees
+        elif s == "-": # cw
+            turtle.right(turn_degrees)
+            angle += turn_degrees
+    input()
 
-a = curve["axiom"]
-inverse = str.maketrans(dict(zip("AB+-", "BA-+")))
-b = str.translate(''.join(reversed(a)), inverse)
-steps = a
-sub = str.maketrans({"A": a, "B": b})
-for _ in range(1, order):
-    steps = str.translate(steps, sub)
-
-angle = 0
-turtle.speed(0)
-turtle.left(angle) # ccw
-draw = curve["draw"]
-turn = curve["turn"]
-for s in steps:
-    if s in draw:
-        turtle.forward(size)
-    elif s == "+": # ccw
-        turtle.left(turn)
-        angle -= turn
-    elif s == "-": # cw
-        turtle.right(turn)
-        angle += turn
-
-
-input()
+# Example
+draw_curve(curves["gosper-31c-1"])
